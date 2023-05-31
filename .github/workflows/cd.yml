@@ -19,27 +19,47 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-    #   - name: Setup SSH Azure
+    #   - name: Build
+    #     run: mvn -B -f pom.xml clean install -Dmaven.test.skip=true
+
+    #   - name: Setup SSH Azure Dev
     #     env:
     #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
     #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_DEV }}
     #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
     #     run: |
     #       mkdir ~/.ssh
-    #       echo "$SSH_KEY" > ~/.ssh/id_rsa_gcp
-    #       chmod 600 ~/.ssh/id_rsa_gcp
+    #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_dev
+    #       chmod 600 ~/.ssh/id_rsa_azure_dev
     #       cat >> ~/.ssh/config << END
-    #         Host google-cloud
+    #         Host azure-dev
     #         HostName $SSH_HOST
     #         User $SSH_USER
-    #         IdentityFile ~/.ssh/id_rsa_gcp
+    #         IdentityFile ~/.ssh/id_rsa_azure_dev
     #         StrictHostKeyChecking no
+    #       END
+
+    #   - name: Setup SSH Azure Prod
+    #     env:
+    #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
+    #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
+    #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+    #     run: |
+    #       mkdir ~/.ssh
+    #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
+    #       chmod 600 ~/.ssh/id_rsa_azure_prod
+    #       cat >> ~/.ssh/config << END
+    #           Host azure-prod
+    #           HostName $SSH_HOST
+    #           User $SSH_USER
+    #           IdentityFile ~/.ssh/id_rsa_azure_prod
+    #           StrictHostKeyChecking no
     #       END
 
     #   - name: Deploy em Produção
     #     if: github.ref == 'refs/heads/main'
-    #     run: ssh google-cloud ./deploy.sh --prod
+    #     run: ssh azure-prod ./deploy.sh --prod
 
     #   - name: Deploy em Dev
     #     if: github.ref == 'refs/heads/release'
-    #     run: ssh google-cloud ./deploy.sh --release
+    #     run: ssh azure-dev ./deploy.sh --release
