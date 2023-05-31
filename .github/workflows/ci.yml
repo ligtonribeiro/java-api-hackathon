@@ -26,6 +26,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn -B verify sonar:sonar \
+          -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.organization=ligtonribeiro \
           -Dsonar.projectKey=ligtonribeiro_java-api-hackathon \
           -Dorganization-key=ligtonribeiro \
