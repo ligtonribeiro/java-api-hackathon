@@ -65,8 +65,6 @@ jobs:
       - name: Deploy em Produção
         if: github.ref == 'refs/heads/main'
         run: |
-          ssh azure-prod sudo systemctl stop api-java.service
-          ssh azure-prod sudo rm java-api/*
           scp target/java-api.jar azure-dev:/home/ubuntu/java-api
           ssh azure-prod sudo systemctl start api-java.service
 
