@@ -19,47 +19,56 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-    #   - name: Build
-    #     run: mvn -B -f pom.xml clean install -Dmaven.test.skip=true
+      - name: Set UP JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "corretto"
+          cache: maven
 
-    #   - name: Setup SSH Azure Dev
-    #     env:
-    #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
-    #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_DEV }}
-    #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
-    #     run: |
-    #       mkdir ~/.ssh
-    #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_dev
-    #       chmod 600 ~/.ssh/id_rsa_azure_dev
-    #       cat >> ~/.ssh/config << END
-    #         Host azure-dev
-    #         HostName $SSH_HOST
-    #         User $SSH_USER
-    #         IdentityFile ~/.ssh/id_rsa_azure_dev
-    #         StrictHostKeyChecking no
-    #       END
+      - name: Build
+        run: mvn -B -f pom.xml clean install -Dmaven.test.skip=true
 
-    #   - name: Setup SSH Azure Prod
-    #     env:
-    #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
-    #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
-    #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
-    #     run: |
-    #       mkdir ~/.ssh
-    #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
-    #       chmod 600 ~/.ssh/id_rsa_azure_prod
-    #       cat >> ~/.ssh/config << END
-    #           Host azure-prod
-    #           HostName $SSH_HOST
-    #           User $SSH_USER
-    #           IdentityFile ~/.ssh/id_rsa_azure_prod
-    #           StrictHostKeyChecking no
-    #       END
+      - name: Setup SSH Azure Dev
+        env:
+          SSH_USER: ${{ secrets.AZURE_SSH_USER }}
+          SSH_HOST: ${{ secrets.AZURE_SSH_HOST_DEV }}
+          SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+        run: |
+          mkdir ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_dev
+          chmod 600 ~/.ssh/id_rsa_azure_dev
+          cat >> ~/.ssh/config << END
+            Host azure-dev
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/id_rsa_azure_dev
+            StrictHostKeyChecking no
+          END
 
-    #   - name: Deploy em Produção
-    #     if: github.ref == 'refs/heads/main'
-    #     run: ssh azure-prod ./deploy.sh --prod
+      #   - name: Setup SSH Azure Prod
+      #     env:
+      #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
+      #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
+      #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+      #     run: |
+      #       mkdir ~/.ssh
+      #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
+      #       chmod 600 ~/.ssh/id_rsa_azure_prod
+      #       cat >> ~/.ssh/config << END
+      #           Host azure-prod
+      #           HostName $SSH_HOST
+      #           User $SSH_USER
+      #           IdentityFile ~/.ssh/id_rsa_azure_prod
+      #           StrictHostKeyChecking no
+      #       END
 
-    #   - name: Deploy em Dev
-    #     if: github.ref == 'refs/heads/release'
-    #     run: ssh azure-dev ./deploy.sh --release
+      #   - name: Deploy em Produção
+      #     if: github.ref == 'refs/heads/main'
+      #     run: ssh azure-prod ./deploy.sh --prod
+
+      - name: Deploy em Dev
+        if: github.ref == 'refs/heads/release'
+        run: |
+          scp target/java-api.jar azure-dev:/home/ubuntu/java-api
+          ssh azure-dev sudo systemctl start api-java.service
