@@ -46,22 +46,22 @@ jobs:
             StrictHostKeyChecking no
           END
 
-      - name: Setup SSH Azure Prod
-        env:
-          SSH_USER: ${{ secrets.AZURE_SSH_USER }}
-          SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
-          SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
-        run: |
-          mkdir ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
-          chmod 600 ~/.ssh/id_rsa_azure_prod
-          cat >> ~/.ssh/config << END
-              Host azure-prod
-              HostName $SSH_HOST
-              User $SSH_USER
-              IdentityFile ~/.ssh/id_rsa_azure_prod
-              StrictHostKeyChecking no
-          END
+      #   - name: Setup SSH Azure Prod
+      #     env:
+      #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
+      #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
+      #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+      #     run: |
+      #       mkdir ~/.ssh
+      #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
+      #       chmod 600 ~/.ssh/id_rsa_azure_prod
+      #       cat >> ~/.ssh/config << END
+      #           Host azure-prod
+      #           HostName $SSH_HOST
+      #           User $SSH_USER
+      #           IdentityFile ~/.ssh/id_rsa_azure_prod
+      #           StrictHostKeyChecking no
+      #       END
 
       #   - name: Deploy em Produção
       #     if: github.ref == 'refs/heads/main'
