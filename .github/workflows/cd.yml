@@ -46,29 +46,34 @@ jobs:
             StrictHostKeyChecking no
           END
 
-      #   - name: Setup SSH Azure Prod
-      #     env:
-      #       SSH_USER: ${{ secrets.AZURE_SSH_USER }}
-      #       SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
-      #       SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
-      #     run: |
-      #       mkdir ~/.ssh
-      #       echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
-      #       chmod 600 ~/.ssh/id_rsa_azure_prod
-      #       cat >> ~/.ssh/config << END
-      #           Host azure-prod
-      #           HostName $SSH_HOST
-      #           User $SSH_USER
-      #           IdentityFile ~/.ssh/id_rsa_azure_prod
-      #           StrictHostKeyChecking no
-      #       END
+      - name: Setup SSH Azure Prod
+        env:
+          SSH_USER: ${{ secrets.AZURE_SSH_USER }}
+          SSH_HOST: ${{ secrets.AZURE_SSH_HOST_PROD }}
+          SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > ~/.ssh/id_rsa_azure_prod
+          chmod 600 ~/.ssh/id_rsa_azure_prod
+          cat >> ~/.ssh/config << END
+              Host azure-prod
+              HostName $SSH_HOST
+              User $SSH_USER
+              IdentityFile ~/.ssh/id_rsa_azure_prod
+              StrictHostKeyChecking no
+          END
 
-      #   - name: Deploy em Produção
-      #     if: github.ref == 'refs/heads/main'
-      #     run: ssh azure-prod ./deploy.sh --prod
+      - name: Deploy em Produção
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ssh azure-prod sudo systemctl stop api-java.service
+          ssh azure-prod sudo rm java-api/*
+          scp target/java-api.jar azure-dev:/home/ubuntu/java-api
+          ssh azure-prod sudo systemctl start api-java.service
 
       - name: Deploy em Dev
         if: github.ref == 'refs/heads/release'
         run: |
+          ssh azure-dev sudo systemctl stop api-java.service
+          ssh azure-dev sudo rm java-api/*
           scp target/java-api.jar azure-dev:/home/ubuntu/java-api
           ssh azure-dev sudo systemctl start api-java.service
